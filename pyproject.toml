@@ -1,0 +1,15 @@
+# Tool settings only. This repo is a few scripts to read and run, not a package to install.
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra"
+timeout = 60  # a socket test that hangs fails instead of blocking CI
+
+[tool.ruff]
+line-length = 130
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B"]
+ignore = ["N818"]  # ConnectionClosed reads better than ConnectionClosedError (websockets uses the same name)
