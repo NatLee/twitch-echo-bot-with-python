@@ -1,0 +1,130 @@
+<!doctype html>
+<!--
+  "One IRC line, four parts" picture for the README (STEP 6). Render like hero.html, at 960x470:
+    msedge --headless=new --hide-scrollbars --force-device-scale-factor=2 --window-size=960,470
+           --default-background-color=00000000 --virtual-time-budget=5000
+           --screenshot=message-anatomy-dark.png "file:///…/message-anatomy.html#dark"
+  The line is in the format the fake server sends (tools/fake_twitch_server.py, FakeTwitchServer.say)
+  with all but two tags left out. The results are what parse_line() in twitch_chat.py returns for it, and
+  what the 2019 code (line.split(":")) returned; both are checked in tests/test_parsing.py.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>IRC message anatomy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=block" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffffff; --bg2: #f6f8fa; --ink: #1f2328; --muted: #59636e; --line: #d1d9e0; --card: #ffffff;
+    --c1: #8250df; --c2: #0969da; --c3: #bc4c00; --c4: #1a7f37; --bad: #cf222e;
+    --t1: rgba(130,80,223,.12); --t2: rgba(9,105,218,.10); --t3: rgba(188,76,0,.11); --t4: rgba(26,127,55,.11);
+    --shadow: 0 1px 2px rgba(31,35,40,.06), 0 6px 18px rgba(31,35,40,.06);
+  }
+  .dark {
+    --bg: #0d1117; --bg2: #151b23; --ink: #f0f6fc; --muted: #9198a1; --line: #3d444d; --card: #151b23;
+    --c1: #ab7df8; --c2: #4493f8; --c3: #f0883e; --c4: #3fb950; --bad: #f85149;
+    --t1: rgba(171,125,248,.16); --t2: rgba(68,147,248,.15); --t3: rgba(240,136,62,.15); --t4: rgba(63,185,80,.15);
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: transparent; }
+  body { width: 960px; height: 470px; font-family: Inter, "Segoe UI", sans-serif; color: var(--ink); }
+  .frame { position: relative; width: 960px; height: 470px; border-radius: 22px; overflow: hidden;
+           border: 1px solid var(--line); background: var(--bg); }
+  h2 { position: absolute; left: 40px; top: 26px; margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
+  h2 span { font-weight: 500; color: var(--muted); font-size: 15px; letter-spacing: 0; margin-left: 10px; }
+
+  #raw { position: absolute; left: 40px; right: 40px; top: 78px; padding: 14px 16px; border-radius: 12px;
+         border: 1px solid var(--line); background: var(--bg2); font-family: "JetBrains Mono", Consolas, monospace;
+         font-size: 14px; white-space: nowrap; }
+  .seg { border-radius: 5px; padding: 3px 0; }
+  .s1 { background: var(--t1); color: var(--c1); }
+  .s2 { background: var(--t2); color: var(--c2); }
+  .s3 { background: var(--t3); color: var(--c3); font-weight: 700; }
+  .s4 { background: var(--t4); color: var(--c4); }
+  .crlf { color: var(--muted); }
+
+  svg#wires { position: absolute; inset: 0; pointer-events: none; }
+  .bracket { fill: none; stroke-width: 2; }
+
+  .cards { position: absolute; left: 40px; right: 40px; top: 190px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); padding: 12px 14px; min-height: 150px; }
+  .card h3 { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+  .card h3 b { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 11px; letter-spacing: 0; }
+  .card p { margin: 8px 0 0; font-size: 12.5px; line-height: 1.45; color: var(--muted); }
+  .card code { font-family: "JetBrains Mono", Consolas, monospace; font-size: 11.5px; color: var(--ink); }
+  .card .out { margin-top: 9px; font-family: "JetBrains Mono", Consolas, monospace; font-size: 11.5px; line-height: 1.5;
+               padding: 6px 8px; border-radius: 8px; background: var(--bg2); border: 1px solid var(--line); white-space: pre; }
+  .k1 h3 { color: var(--c1); } .k1 h3 b { background: var(--c1); }
+  .k2 h3 { color: var(--c2); } .k2 h3 b { background: var(--c2); }
+  .k3 h3 { color: var(--c3); } .k3 h3 b { background: var(--c3); }
+  .k4 h3 { color: var(--c4); } .k4 h3 b { background: var(--c4); }
+
+  .compare { position: absolute; left: 40px; right: 40px; top: 390px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .compare div { border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; background: var(--card);
+                 font-family: "JetBrains Mono", Consolas, monospace; font-size: 12.5px; white-space: nowrap; }
+  .compare small { display: block; font-family: Inter, "Segoe UI", sans-serif; font-size: 11.5px; color: var(--muted); margin-bottom: 4px; }
+  .bad b { color: var(--bad); } .good b { color: var(--c4); }
+</style>
+</head>
+<body>
+<script>if (location.hash === '#dark') document.documentElement.className = 'dark';</script>
+<div class="frame">
+  <h2>One line from Twitch, four parts <span>parse_line() in twitch_chat.py · STEP 6</span></h2>
+
+  <div id="raw"><span class="seg s1" id="p1">@color=#1E90FF;display-name=Alice</span> <span class="seg s2" id="p2">:alice!alice@alice.tmi.twitch.tv</span> <span class="seg s3" id="p3">PRIVMSG</span> <span class="seg s4" id="p4">#demo :look: a colon</span><span class="crlf">\r\n</span></div>
+
+  <svg id="wires" width="960" height="470"></svg>
+
+  <div class="cards">
+    <div class="card k1" id="c1">
+      <h3><b>1</b>tags</h3>
+      <p>Only if you asked with <code>CAP REQ</code>. Starts with <code>@</code>, ends at the first space; <code>;</code> between pairs.</p>
+      <div class="out">{"color": "#1E90FF",
+ "display-name": "Alice"}</div>
+    </div>
+    <div class="card k2" id="c2">
+      <h3><b>2</b>prefix</h3>
+      <p>Who sent it. Starts with <code>:</code>, ends at the next space. The login is what comes before <code>!</code>.</p>
+      <div class="out">nick = "alice"</div>
+    </div>
+    <div class="card k3" id="c3">
+      <h3><b>3</b>command</h3>
+      <p>What kind of line this is: <code>PRIVMSG</code> is chat. Others: <code>PING</code>, <code>JOIN</code>, <code>NOTICE</code>, <code>001</code>.</p>
+      <div class="out">command = "PRIVMSG"</div>
+    </div>
+    <div class="card k4" id="c4">
+      <h3><b>4</b>params</h3>
+      <p>Split at spaces. A <code>:</code> right after a space starts the last one, which keeps its spaces and colons.</p>
+      <div class="out">["#demo",
+ "look: a colon"]</div>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="bad"><small>2019 version: line.split(":") (without tags)</small><b>✗</b> text = "look"</div>
+    <div class="good"><small>now: parse_line(line).trailing</small><b>✓</b> text = "look: a colon"</div>
+  </div>
+</div>
+<script>
+  // Draw a bracket under each part of the line and a wire down to its card.
+  document.fonts.ready.then(() => {
+    const svg = document.getElementById('wires');
+    const frame = document.querySelector('.frame').getBoundingClientRect();
+    const colors = ['--c1', '--c2', '--c3', '--c4'].map(v => getComputedStyle(document.documentElement).getPropertyValue(v));
+    for (let i = 1; i <= 4; i++) {
+      const seg = document.getElementById('p' + i).getBoundingClientRect();
+      const card = document.getElementById('c' + i).getBoundingClientRect();
+      const x1 = seg.left - frame.left + 2, x2 = seg.right - frame.left - 2, y = seg.bottom - frame.top + 14;
+      const mid = (x1 + x2) / 2, cx = card.left - frame.left + card.width / 2, cy = card.top - frame.top;
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('class', 'bracket');
+      path.setAttribute('stroke', colors[i - 1]);
+      path.setAttribute('d', `M${x1} ${y - 6} V${y} H${x2} V${y - 6} M${mid} ${y} C ${mid} ${y + 22}, ${cx} ${cy - 26}, ${cx} ${cy - 2}`);
+      svg.appendChild(path);
+    }
+  });
+</script>
+</body>
+</html>
