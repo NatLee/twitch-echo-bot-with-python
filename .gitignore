@@ -1,7 +1,14 @@
-__pycache__
+# your settings and token (copy .env.example)
+.env
 
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# editors and OS
+.vscode/
 .DS_Store
-
 desktop.ini
-
-.vscode
