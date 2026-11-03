@@ -1,0 +1,3 @@
+# Only the examples need these; main.py does not.
+irc>=20.5         # examples/irc_library_echo.py
+websockets>=13.0  # examples/eventsub_echo.py (uses the sync client)
