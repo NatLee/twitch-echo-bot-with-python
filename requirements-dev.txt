@@ -1,0 +1,6 @@
+# For running the tests. The bot itself (main.py, twitch_chat.py, config.py)
+# uses only Python's standard library and needs none of this.
+pytest>=8.3
+pytest-timeout>=2.3
+trustme>=1.2
+ruff>=0.15
